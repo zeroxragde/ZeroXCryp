@@ -15,7 +15,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build native Android APK
+        run: gradle --no-daemon assembleDebug
+      - name: Save APK for the Pages site
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeroxcryp-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
   deploy:
+    needs: build-android
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,10 +51,19 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Prepare download page
+        run: mkdir -p site/downloads && cp index.html site/index.html
+      - name: Add the native APK to the download page
+        uses: actions/download-artifact@v4
+        with:
+          name: zeroxcryp-apk
+          path: site/downloads
+      - name: Name the Android installer
+        run: mv site/downloads/app-debug.apk site/downloads/ZeroXCryp.apk
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
