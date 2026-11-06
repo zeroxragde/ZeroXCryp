@@ -57,8 +57,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Prepare download page
-        run: mkdir -p site/downloads && cp index.html site/index.html
+      - name: Prepare the installable app site
+        run: |
+          mkdir -p site/downloads site/icons
+          cp index.html app.js styles.css manifest.webmanifest sw.js site/
+          cp icons/icon.svg icons/icon-192.png icons/icon-512.png site/icons/
       - name: Add the native APK to the download page
         uses: actions/download-artifact@v4
         with:
