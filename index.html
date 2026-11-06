@@ -33,6 +33,10 @@
       <p class="ios" id="ios-note">Este instalador es para Android. La versión nativa de iPhone aún no está disponible.</p>
       <footer>La app guarda la bóveda solo en tu teléfono.<br />Las copias cifradas se guardan desde el selector de archivos de Android.</footer>
     </main>
-    <script>if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){document.querySelector('#ios-note').style.display='block';document.querySelector('.install').textContent='Instalador disponible para Android';document.querySelector('.install').removeAttribute('href')}</script>
+    <script>
+      if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){document.querySelector('#ios-note').style.display='block';document.querySelector('.install').textContent='Instalador disponible para Android';document.querySelector('.install').removeAttribute('href')}
+      if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(items=>items.forEach(item=>item.unregister()))}
+      if('caches' in window){caches.keys().then(keys=>keys.forEach(key=>caches.delete(key)))}
+    </script>
   </body>
 </html>
