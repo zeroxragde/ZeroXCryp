@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111410" />
+    <meta name="description" content="Bóveda local y cifrada para tus contraseñas." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>ZeroXCryp — tu bóveda personal</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="ZeroXCryp, inicio">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 3 27 7v8c0 7-4.7 11.7-11 14C9.7 26.7 5 22 5 15V7l11-4Z"/><path d="M12 15v-2a4 4 0 0 1 8 0v2m-9 0h10v7H11z"/></svg></span>
+          <span class="brand-name">ZeroXCryp<span class="brand-dot">.</span></span>
+        </a>
+        <div class="topbar-right" id="topbar-right"></div>
+      </header>
+      <main id="app" aria-live="polite"></main>
+      <footer class="site-footer"><span>Privado por diseño.</span><span>Tu bóveda vive en este dispositivo.</span></footer>
+    </div>
+    <div id="toast-region" class="toast-region" aria-live="assertive"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
