@@ -66,13 +66,15 @@ public class MainActivity extends Activity {
     private JSONObject vault;
     private String masterPassword;
     private final Map<String, String> revealed = new HashMap<>();
-    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Handler idleHandler = new Handler(Looper.getMainLooper());
+    private final Handler revealHandler = new Handler(Looper.getMainLooper());
     private Runnable idleLock;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(BG);
         getWindow().setNavigationBarColor(BG);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         db = new VaultDb(this);
         account = db.readAccount();
         if (account == null) showRegistration(); else showLogin();
@@ -84,7 +86,8 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
-        handler.removeCallbacksAndMessages(null);
+        idleHandler.removeCallbacksAndMessages(null);
+        revealHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
@@ -113,6 +116,7 @@ public class MainActivity extends Activity {
         input.setTextColor(TEXT);
         input.setHintTextColor(0xFF778071);
         input.setHint(hint);
+        input.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
         input.setTextSize(14);
         input.setPadding(dp(13), 0, dp(13), 0);
         input.setBackground(roundRect(0xFF11140F, LINE, 7));
@@ -343,7 +347,7 @@ public class MainActivity extends Activity {
         reveal.setOnClickListener(v -> {
             if (revealed.containsKey(id)) { revealed.remove(id); showVault(); }
             else promptExtra("Mostrar contraseña", extra -> {
-                try { revealed.put(id, decryptEntry(entry, extra)); showVault(); handler.postDelayed(() -> { if (revealed.remove(id) != null && vault != null) showVault(); }, 30000); }
+                try { revealed.put(id, decryptEntry(entry, extra)); showVault(); revealHandler.postDelayed(() -> { if (revealed.remove(id) != null && vault != null) showVault(); }, 30000); }
                 catch (Exception ex) { toast("No se pudo descifrar la contraseña."); }
             });
         });
@@ -507,16 +511,17 @@ public class MainActivity extends Activity {
     }
 
     private void lockVault() {
-        handler.removeCallbacksAndMessages(null);
+        idleHandler.removeCallbacksAndMessages(null);
+        revealHandler.removeCallbacksAndMessages(null);
         vault = null; masterPassword = null; revealed.clear();
         account = db.readAccount();
         if (account == null) showRegistration(); else showLogin();
     }
 
     private void resetIdleTimer() {
-        handler.removeCallbacksAndMessages(null);
+        if (idleLock != null) idleHandler.removeCallbacks(idleLock);
         idleLock = this::lockVault;
-        handler.postDelayed(idleLock, 5 * 60 * 1000L);
+        idleHandler.postDelayed(idleLock, 5 * 60 * 1000L);
     }
 
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_SHORT).show(); }
