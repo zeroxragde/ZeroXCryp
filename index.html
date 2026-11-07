@@ -2,51 +2,42 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#111410" />
-    <meta name="description" content="ZeroXCryp: una bóveda local y cifrada para tus claves." />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ZeroXCryp" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png" />
-    <link rel="stylesheet" href="styles.css" />
-    <title>ZeroXCryp — bóveda local</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0d0b" />
+    <meta name="description" content="Descarga ZeroXCryp, el gestor de claves nativo para Android." />
+    <title>ZeroXCryp — Android</title>
+    <style>
+      :root{color-scheme:dark;--bg:#0b0d0b;--surface:#151a14;--line:#2b3327;--text:#f4f5ef;--muted:#9aa393;--accent:#d4f56e;--ink:#182013}
+      *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 52% -30%,#2a3422 0,var(--bg) 56%);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;display:grid;place-items:center;padding:22px}
+      main{width:min(100%,500px)}.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:800}.mark{width:42px;height:42px;border-radius:13px;background:var(--accent);color:var(--ink);display:grid;place-items:center;font-size:22px}.tag{display:block;margin-top:3px;color:var(--muted);font:8px ui-monospace,monospace;letter-spacing:1px}
+      .eyebrow{margin-top:54px;color:var(--accent);font:10px ui-monospace,monospace;letter-spacing:1.5px}.shield{width:58px;height:58px;border:1px solid #d4f56e45;border-radius:18px;background:#d4f56e0b;display:grid;place-items:center;margin-top:19px;color:var(--accent);font-size:26px}
+      h1{font:500 clamp(40px,10vw,58px)/1 Georgia,serif;letter-spacing:-1.8px;margin:19px 0 13px}p{font-size:14px;line-height:1.65;color:var(--muted);margin:0;max-width:440px}
+      .install{display:flex;justify-content:center;align-items:center;margin-top:25px;width:100%;min-height:54px;border-radius:11px;background:var(--accent);color:var(--ink);text-decoration:none;font-size:14px;font-weight:800;box-shadow:0 12px 32px #d4f56e16}.install:hover{background:#e0ff89}
+      .card{margin-top:18px;padding:17px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(145deg,#171c15,#121510)}.row{display:flex;gap:11px;align-items:flex-start}.check{color:var(--accent);font-size:14px}.row p{font-size:11px;line-height:1.55}.row+.row{margin-top:11px}
+      .ios{display:none;margin-top:15px;font-size:11px}.apk{display:block;margin-top:17px;color:#aeb7a5;text-align:center;font-size:11px}footer{margin-top:25px;color:#788071;font:9px ui-monospace,monospace;line-height:1.6;text-align:center}
+      @media(max-width:520px){.eyebrow{margin-top:42px}}
+    </style>
   </head>
   <body>
-    <main class="shell">
-      <header class="brand-row"><span class="brand-mark" aria-hidden="true">⬟</span><span>ZeroXCryp</span><button class="install-top" id="installButton" type="button">＋ Instalar</button></header>
-      <section class="intro" id="intro">
-        <p class="eyebrow">TU BÓVEDA PRIVADA</p>
-        <h1>Tus claves.<br />Bajo tu control.</h1>
-        <p class="intro-copy">Cifradas en este dispositivo. Sin cuenta en línea y sin subir tus contraseñas a un servidor.</p>
-        <div class="install-panel" id="installPanel" hidden>
-          <div><strong>Instala ZeroXCryp</strong><p id="installHelp">Añade la app a la pantalla de inicio para abrirla como una aplicación.</p></div>
-          <button class="button primary" id="installMain" type="button">Instalar en pantalla de inicio</button>
-        </div>
-        <div class="security-note"><span>◆</span><p>La bóveda se cifra con tu contraseña principal. Cada contraseña guardada tiene una capa adicional con tu clave extra.</p></div>
+    <main>
+      <div class="brand"><span class="mark">⬟</span><span>ZeroXCryp<span class="tag">GESTOR LOCAL CIFRADO</span></span></div>
+      <div class="eyebrow">APLICACIÓN NATIVA PARA ANDROID</div>
+      <div class="shield" aria-hidden="true">▣</div>
+      <h1>Tus claves.<br />Bajo tu control.</h1>
+      <p>ZeroXCryp guarda tus accesos en una bóveda cifrada dentro del teléfono. No necesitas una cuenta en línea.</p>
+      <a class="install" href="downloads/ZeroXCryp.apk" download>Descargar e instalar ZeroXCryp</a>
+      <section class="card">
+        <div class="row"><span class="check">✓</span><p>Aplicación Android nativa; tus accesos permanecen en el teléfono.</p></div>
+        <div class="row"><span class="check">✓</span><p>La bóveda usa cifrado AES-GCM; cada contraseña tiene una clave extra independiente.</p></div>
+        <div class="row"><span class="check">✓</span><p>Después de descargar el APK, ábrelo y confirma la instalación de Android.</p></div>
       </section>
-      <section id="auth" class="panel" aria-live="polite"></section>
-      <section id="vault" hidden></section>
-      <footer><span>ZeroXCryp · almacenamiento local cifrado</span><a href="downloads/ZeroXCryp.apk" id="apkLink">APK nativo para Android</a></footer>
+      <p class="ios" id="ios-note">Este archivo APK solo funciona en Android.</p>
+      <footer>Conserva tu contraseña principal y clave extra.<br />Usa Copia / Drive dentro de la app para guardar un respaldo cifrado.</footer>
     </main>
-    <dialog id="entryDialog" class="dialog">
-      <form id="entryForm" method="dialog" class="dialog-form">
-        <div class="dialog-heading"><div><p class="eyebrow">ACCESO</p><h2 id="dialogTitle">Nueva clave</h2></div><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></div>
-        <input type="hidden" name="id" />
-        <label>Nombre<input name="name" required maxlength="90" autocomplete="off" placeholder="Correo personal" /></label>
-        <label>Usuario o correo<input name="username" maxlength="160" autocomplete="off" placeholder="nombre@correo.com" /></label>
-        <label>Sitio web<input name="url" maxlength="400" inputmode="url" autocomplete="url" placeholder="https://ejemplo.com" /></label>
-        <label>Contraseña<input name="password" type="password" autocomplete="new-password" placeholder="Contraseña del acceso" /></label>
-        <label>Clave extra<input name="extra" type="password" autocomplete="current-password" required placeholder="Confirma tu clave extra" /></label>
-        <p class="form-note" id="editNote" hidden>Al editar, deja la contraseña vacía para conservar la actual.</p>
-        <div class="form-actions"><button class="button secondary" value="cancel">Cancelar</button><button class="button primary" id="saveEntry" type="submit">Guardar acceso</button></div>
-      </form>
-    </dialog>
-    <dialog id="installDialog" class="dialog small-dialog">
-      <form method="dialog" class="dialog-form"><div class="dialog-heading"><div><p class="eyebrow">INSTALAR</p><h2>Añade ZeroXCryp</h2></div><button class="icon-button" aria-label="Cerrar">×</button></div><p id="installInstructions" class="instructions"></p><button class="button primary full" id="installDialogAction" type="button">Entendido</button></form>
-    </dialog>
-    <script src="app.js" defer></script>
+    <script>
+      if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){document.querySelector('#ios-note').style.display='block';document.querySelector('.install').textContent='ZeroXCryp está disponible para Android';document.querySelector('.install').removeAttribute('href')}
+      if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(registrations=>registrations.forEach(registration=>{const worker=registration.active||registration.waiting||registration.installing;if(worker&&worker.scriptURL.includes('/ZeroXCryp/sw.js'))registration.unregister()}))}
+      if('caches' in window){caches.keys().then(keys=>keys.filter(key=>key.startsWith('zeroxcryp-pwa-')).forEach(key=>caches.delete(key)))}
+    </script>
   </body>
 </html>

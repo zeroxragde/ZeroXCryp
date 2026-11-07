@@ -1,26 +1,24 @@
-# ZeroXCryp
+# ZeroXCryp para Android
 
-ZeroXCryp está disponible como aplicación web instalable (PWA) para Android y iPhone, además de conservar el APK nativo de Android. La PWA guarda su bóveda en IndexedDB del navegador y cifra el contenido antes de almacenarlo. No hay servidor de cuentas ni base de datos remota.
+ZeroXCryp es una aplicación Android nativa. La página de GitHub Pages solo ofrece el APK; no guarda ni administra contraseñas. La bóveda se almacena en SQLite dentro del espacio privado de la app.
 
-## Instalar en el teléfono
+## Instalar
 
-Abre <https://zeroxragde.github.io/ZeroXCryp/> usando Safari en iPhone o Chrome en Android. Pulsa **Instalar** y sigue las instrucciones. En iPhone: Compartir → Añadir a pantalla de inicio. En Android, acepta el diálogo de instalación o usa el menú del navegador.
+1. Abre <https://zeroxragde.github.io/ZeroXCryp/> desde tu teléfono Android.
+2. Pulsa **Descargar e instalar ZeroXCryp** y abre el archivo APK descargado.
+3. Autoriza temporalmente la instalación desde tu navegador si Android lo solicita y confirma.
+4. Crea tu perfil, contraseña principal y clave extra.
 
-La página debe abrirse por HTTPS. Si no aparece el diálogo de Android, el menú de Chrome ofrece **Instalar aplicación** o **Añadir a pantalla de inicio**. iOS muestra las instrucciones de Safari desde el botón.
+La compilación actual es el APK de depuración que genera GitHub Actions para instalación directa; no está publicado en Google Play.
 
-## Bóveda web
+## Protección y copias
 
-- El perfil y la bóveda cifrada se guardan localmente en el navegador; cada navegador y dispositivo tienen su propio almacenamiento.
-- Contraseña principal y clave extra deben ser diferentes y tener al menos 12 caracteres.
-- La bóveda se cifra con AES-GCM de 256 bits; la llave se deriva con PBKDF2-HMAC-SHA-256 y 310 000 iteraciones. Cada contraseña tiene su propio cifrado AES-GCM con sal independiente y la clave extra.
-- El navegador se bloquea al ocultar la app y tras cinco minutos de inactividad.
-- **Copia cifrada** exporta el contenedor cifrado como JSON. Guarda ese archivo en un lugar seguro (puedes elegir Google Drive desde el selector de archivos del teléfono) e impórtalo en el otro dispositivo. La copia no sincroniza automáticamente.
-- Si limpias los datos del navegador o pierdes las claves, podrías perder acceso a la bóveda. Conserva una copia cifrada.
+- La base SQLite privada guarda la bóveda cifrada con AES-GCM. La clave principal se deriva mediante PBKDF2-HMAC-SHA256 y sal aleatoria.
+- Cada contraseña tiene una capa AES-GCM adicional cifrada con una clave derivada de la clave extra y una sal propia.
+- La pantalla se bloquea después de cinco minutos de inactividad.
+- **Copia / Drive** abre el selector de documentos Android para guardar/restaurar el archivo JSON cifrado. Puedes elegir Google Drive como destino. El respaldo no sincroniza automáticamente.
+- Guarda el respaldo antes de reinstalar o actualizar. Si pierdes la contraseña principal o la clave extra no hay recuperación.
 
-## App Android nativa
+## Interfaz y compilación
 
-El APK Android continúa disponible desde **APK nativo para Android** en la página. Su base SQLite es independiente del almacenamiento web de Chrome. La app nativa también permite guardar/restaurar copias cifradas.
-
-## Desarrollo y despliegue
-
-La interfaz PWA está en `index.html`, `styles.css` y `app.js`, con el manifiesto `manifest.webmanifest` y service worker `sw.js`. La acción de GitHub compila el APK Android y despliega ambos formatos en GitHub Pages. El registro de claves, desbloqueo, cifrado, edición, eliminación, copia y restauración se deben probar manualmente en Android/Chrome y iPhone/Safari antes de usar la bóveda con secretos reales.
+La interfaz nativa se construye en Java en `app/src/main/java/com/zeroxcryp/MainActivity.java`. Usa un tema oscuro fijo, acento verde lima, superficies elevadas, campos redondeados y tarjetas para los accesos. La acción de GitHub compila el APK y publica el enlace de descarga en GitHub Pages.

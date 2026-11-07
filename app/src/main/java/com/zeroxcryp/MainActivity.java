@@ -52,11 +52,11 @@ import javax.crypto.spec.SecretKeySpec;
 public class MainActivity extends Activity {
     private static final int REQUEST_EXPORT = 41;
     private static final int REQUEST_IMPORT = 42;
-    private static final int BG = 0xFF111410;
-    private static final int CARD = 0xFF1B2019;
-    private static final int LINE = 0xFF343B30;
+    private static final int BG = 0xFF0B0D0B;
+    private static final int CARD = 0xFF151A14;
+    private static final int LINE = 0xFF2B3327;
     private static final int TEXT = 0xFFF4F5EF;
-    private static final int MUTED = 0xFFA2A99B;
+    private static final int MUTED = 0xFF9AA393;
     private static final int ACCENT = 0xFFD4F56E;
     private static final String EXTRA_CHECK = "zeroxcryp-extra-check-v1";
     private static final int ITERATIONS = 310000;
@@ -101,12 +101,19 @@ public class MainActivity extends Activity {
         return view;
     }
 
+    private LinearLayout surface(int padding) {
+        LinearLayout view = column(padding);
+        view.setBackground(roundRect(CARD, LINE, 16));
+        return view;
+    }
+
     private TextView text(String value, float size, int color, boolean bold) {
         TextView view = new TextView(this);
         view.setText(value);
         view.setTextSize(size);
         view.setTextColor(color);
         if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        view.setIncludeFontPadding(false);
         return view;
     }
 
@@ -118,8 +125,9 @@ public class MainActivity extends Activity {
         input.setHint(hint);
         input.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS);
         input.setTextSize(14);
-        input.setPadding(dp(13), 0, dp(13), 0);
-        input.setBackground(roundRect(0xFF11140F, LINE, 7));
+        input.setPadding(dp(14), 0, dp(14), 0);
+        input.setBackground(roundRect(0xFF10130F, LINE, 10));
+        input.setSelectAllOnFocus(false);
         if (secret) input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         return input;
     }
@@ -139,16 +147,22 @@ public class MainActivity extends Activity {
         b.setTextSize(13);
         b.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         b.setTextColor(primary ? 0xFF182013 : TEXT);
-        b.setBackground(roundRect(primary ? ACCENT : CARD, primary ? 0 : LINE, 8));
-        b.setPadding(dp(14), dp(7), dp(14), dp(7));
+        GradientDrawable shape = roundRect(primary ? ACCENT : 0xFF1A2018, primary ? 0 : LINE, 11);
+        android.content.res.ColorStateList ripple = android.content.res.ColorStateList.valueOf(primary ? 0x33566B20 : 0x33FFFFFF);
+        b.setBackground(new android.graphics.drawable.RippleDrawable(ripple, shape, roundRect(0xFFFFFFFF, 0, 11)));
+        b.setPadding(dp(15), dp(7), dp(15), dp(7));
+        b.setMinHeight(dp(44));
+        b.setElevation(0f);
+        b.setStateListAnimator(null);
         return b;
     }
 
     private void addField(LinearLayout parent, String label, EditText input) {
-        TextView caption = text(label, 12, 0xFFD4D8CF, true);
+        TextView caption = text(label.toUpperCase(), 10, 0xFFB7C0AE, true);
+        caption.setLetterSpacing(0.08f);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(-1, -2);
-        labelParams.topMargin = dp(13);
-        labelParams.bottomMargin = dp(6);
+        labelParams.topMargin = dp(17);
+        labelParams.bottomMargin = dp(8);
         parent.addView(caption, labelParams);
         parent.addView(input, new LinearLayout.LayoutParams(-1, dp(48)));
     }
@@ -157,19 +171,22 @@ public class MainActivity extends Activity {
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setBackgroundColor(BG);
+        scroll.setClipToPadding(false);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.setPadding(0, dp(8), 0, dp(18));
         scroll.addView(content);
         return scroll;
     }
 
     private void addBrand(LinearLayout root) {
-        LinearLayout row = new LinearLayout(this);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        TextView mark = text("⬟", 22, ACCENT, true);
-        row.addView(mark);
-        TextView brand = text("ZeroXCryp", 19, TEXT, true);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-2, -2);
-        p.leftMargin = dp(8);
-        row.addView(brand, p);
+        LinearLayout row = new LinearLayout(this); row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView mark = text("⬟", 21, 0xFF182013, true); mark.setGravity(Gravity.CENTER);
+        mark.setBackground(roundRect(ACCENT, 0, 12));
+        row.addView(mark, new LinearLayout.LayoutParams(dp(42), dp(42)));
+        LinearLayout brandStack = new LinearLayout(this); brandStack.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-2, -2); p.leftMargin = dp(11); row.addView(brandStack, p);
+        TextView brand = text("ZeroXCryp", 18, TEXT, true); brandStack.addView(brand);
+        TextView caption = text("GESTOR LOCAL CIFRADO", 8, MUTED, true); caption.setLetterSpacing(0.12f); caption.setPadding(0, dp(3), 0, 0); brandStack.addView(caption);
         root.addView(row);
     }
 
@@ -177,12 +194,14 @@ public class MainActivity extends Activity {
         LinearLayout root = column(24);
         addBrand(root);
         TextView eyebrow = text("UNA BÓVEDA, SOLO TUYA", 10, ACCENT, true);
-        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(52);
+        eyebrow.setLetterSpacing(0.14f);
+        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(46);
         root.addView(eyebrow, ep);
-        TextView title = text("Privacidad en\ntus manos.", 34, TEXT, false);
+        TextView title = text("Privacidad en\ntus manos.", 38, TEXT, false);
+        title.setTypeface(Typeface.create("serif", Typeface.NORMAL));
         LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-1, -2); tp.topMargin = dp(12);
         root.addView(title, tp);
-        TextView sub = text("Crea tu bóveda cifrada. Los datos se guardan en este teléfono.", 14, MUTED, false);
+        TextView sub = text("Crea una bóveda personal. Solo tú puedes abrirla desde este teléfono.", 13, MUTED, false);
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2); sp.topMargin = dp(10);
         root.addView(sub, sp);
 
@@ -191,16 +210,19 @@ public class MainActivity extends Activity {
         email.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         EditText master = field("12 caracteres o más", true);
         EditText extra = field("Una segunda frase secreta", true);
-        addField(root, "Nombre", name);
-        addField(root, "Correo electrónico", email);
-        addField(root, "Contraseña principal", master);
-        addField(root, "Clave extra para tus contraseñas", extra);
+        LinearLayout form = surface(17);
+        LinearLayout.LayoutParams formParams = new LinearLayout.LayoutParams(-1, -2); formParams.topMargin = dp(23);
+        root.addView(form, formParams);
+        addField(form, "Nombre", name);
+        addField(form, "Correo electrónico", email);
+        addField(form, "Contraseña principal", master);
+        addField(form, "Clave extra", extra);
 
-        TextView note = text("La clave extra se pide al guardar, revelar o copiar contraseñas. Si la olvidas, no podremos recuperar esas claves.", 11, MUTED, false);
+        TextView note = text("Usa dos claves distintas. La clave extra se solicita para guardar, mostrar o copiar cada contraseña.", 11, MUTED, false);
         LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(-1, -2); np.topMargin = dp(13);
-        root.addView(note, np);
-        Button create = button("Crear mi bóveda", true);
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, dp(50)); bp.topMargin = dp(20);
+        form.addView(note, np);
+        Button create = button("Crear mi bóveda  →", true);
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, dp(54)); bp.topMargin = dp(18);
         root.addView(create, bp);
         create.setOnClickListener(v -> {
             String n = name.getText().toString().trim(), e = email.getText().toString().trim(), m = master.getText().toString(), x = extra.getText().toString();
@@ -230,19 +252,23 @@ public class MainActivity extends Activity {
         LinearLayout root = column(24);
         addBrand(root);
         TextView eyebrow = text("ACCESO LOCAL", 10, ACCENT, true);
-        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(70);
+        eyebrow.setLetterSpacing(0.14f);
+        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(62);
         root.addView(eyebrow, ep);
-        TextView title = text("Desbloquea\ntu bóveda.", 34, TEXT, false);
+        TextView title = text("Desbloquea\ntu bóveda.", 38, TEXT, false);
+        title.setTypeface(Typeface.create("serif", Typeface.NORMAL));
         LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-1, -2); tp.topMargin = dp(12);
         root.addView(title, tp);
-        TextView sub = text("Tu bóveda se guarda solo en este teléfono.", 13, MUTED, false);
+        TextView sub = text("Tu bóveda está cifrada y permanece en este dispositivo.", 13, MUTED, false);
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1, -2); sp.topMargin = dp(8);
         root.addView(sub, sp);
         EditText master = field("Contraseña principal", true);
-        addField(root, "Contraseña principal", master);
-        Button unlock = button("Desbloquear", true);
-        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, dp(50)); bp.topMargin = dp(18);
-        root.addView(unlock, bp);
+        LinearLayout form = surface(17);
+        LinearLayout.LayoutParams formParams = new LinearLayout.LayoutParams(-1, -2); formParams.topMargin = dp(24);
+        root.addView(form, formParams); addField(form, "Contraseña principal", master);
+        Button unlock = button("Desbloquear bóveda  →", true);
+        LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(-1, dp(54)); bp.topMargin = dp(16);
+        form.addView(unlock, bp);
         unlock.setOnClickListener(v -> {
             String password = master.getText().toString();
             try {
@@ -264,40 +290,48 @@ public class MainActivity extends Activity {
         resetIdleTimer();
         LinearLayout root = column(20);
         LinearLayout top = new LinearLayout(this); top.setGravity(Gravity.CENTER_VERTICAL);
-        TextView brand = text("ZeroXCryp", 18, TEXT, true); top.addView(brand, new LinearLayout.LayoutParams(0, -2, 1));
-        Button settings = button("⋯", false); top.addView(settings, new LinearLayout.LayoutParams(dp(50), dp(42)));
+        TextView mark = text("⬟", 19, 0xFF182013, true); mark.setGravity(Gravity.CENTER); mark.setBackground(roundRect(ACCENT, 0, 11));
+        top.addView(mark, new LinearLayout.LayoutParams(dp(38), dp(38)));
+        LinearLayout brandStack = new LinearLayout(this); brandStack.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams brandParams = new LinearLayout.LayoutParams(0, -2, 1); brandParams.leftMargin = dp(9); top.addView(brandStack, brandParams);
+        brandStack.addView(text("ZeroXCryp", 17, TEXT, true));
+        TextView local = text("●  SOLO EN ESTE TELÉFONO", 8, MUTED, true); local.setLetterSpacing(0.08f); local.setPadding(0, dp(3), 0, 0); brandStack.addView(local);
+        Button settings = button("⋯", false); top.addView(settings, new LinearLayout.LayoutParams(dp(46), dp(42)));
         root.addView(top);
 
         JSONObject profile = vault.optJSONObject("profile");
         String first = profile == null ? "" : profile.optString("name", "").split(" ")[0];
         TextView eyebrow = text("ESPACIO PRIVADO", 10, ACCENT, true);
-        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(36);
+        eyebrow.setLetterSpacing(0.14f);
+        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(-1, -2); ep.topMargin = dp(35);
         root.addView(eyebrow, ep);
-        TextView title = text("Tu bóveda", 32, TEXT, false);
-        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-1, -2); tp.topMargin = dp(9);
+        TextView title = text("Tu bóveda", 36, TEXT, false); title.setTypeface(Typeface.create("serif", Typeface.NORMAL));
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(-1, -2); tp.topMargin = dp(8);
         root.addView(title, tp);
-        TextView greeting = text("Hola, " + first + ". Aquí están tus accesos.", 13, MUTED, false);
+        JSONArray entries = vault.optJSONArray("entries"); int count = entries == null ? 0 : entries.length();
+        TextView greeting = text("Hola, " + first + ". " + count + (count == 1 ? " acceso protegido." : " accesos protegidos."), 12, MUTED, false);
         LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(-1, -2); gp.topMargin = dp(6);
         root.addView(greeting, gp);
 
         LinearLayout actions = new LinearLayout(this); actions.setOrientation(LinearLayout.HORIZONTAL);
         Button add = button("＋  Nueva clave", true);
-        Button backup = button("Copia / Drive", false);
-        LinearLayout.LayoutParams a = new LinearLayout.LayoutParams(0, dp(46), 1); a.topMargin = dp(20); a.rightMargin = dp(5);
-        LinearLayout.LayoutParams b = new LinearLayout.LayoutParams(0, dp(46), 1); b.topMargin = dp(20); b.leftMargin = dp(5);
+        Button backup = button("↥  Copia", false);
+        LinearLayout.LayoutParams a = new LinearLayout.LayoutParams(0, dp(48), 1); a.topMargin = dp(20); a.rightMargin = dp(5);
+        LinearLayout.LayoutParams b = new LinearLayout.LayoutParams(0, dp(48), 1); b.topMargin = dp(20); b.leftMargin = dp(5);
         actions.addView(add, a); actions.addView(backup, b); root.addView(actions);
         add.setOnClickListener(v -> showEntryDialog(null));
         backup.setOnClickListener(v -> showBackupOptions());
         settings.setOnClickListener(v -> showSettings());
 
-        JSONArray entries = vault.optJSONArray("entries");
         if (entries == null || entries.length() == 0) {
-            LinearLayout empty = new LinearLayout(this); empty.setOrientation(LinearLayout.VERTICAL); empty.setGravity(Gravity.CENTER);
-            empty.setPadding(dp(20), dp(40), dp(20), dp(40)); empty.setBackground(roundRect(CARD, LINE, 10));
-            TextView emptyTitle = text("Tu bóveda está lista", 16, TEXT, true); emptyTitle.setGravity(Gravity.CENTER); empty.addView(emptyTitle);
-            TextView emptyBody = text("Añade tu primera cuenta para empezar a guardar tus claves.", 12, MUTED, false); emptyBody.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams eb = new LinearLayout.LayoutParams(-1, -2); eb.topMargin = dp(8); empty.addView(emptyBody, eb);
-            LinearLayout.LayoutParams ep2 = new LinearLayout.LayoutParams(-1, -2); ep2.topMargin = dp(22); root.addView(empty, ep2);
+            LinearLayout empty = surface(22); empty.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams ep2 = new LinearLayout.LayoutParams(-1, -2); ep2.topMargin = dp(18); root.addView(empty, ep2);
+            TextView emptyIcon = text("＋", 24, ACCENT, true); emptyIcon.setGravity(Gravity.CENTER); emptyIcon.setBackground(roundRect(0xFF252D20, 0, 18));
+            empty.addView(emptyIcon, new LinearLayout.LayoutParams(dp(50), dp(50)));
+            TextView emptyTitle = text("Tu bóveda está lista", 17, TEXT, true); emptyTitle.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams et = new LinearLayout.LayoutParams(-1, -2); et.topMargin = dp(13); empty.addView(emptyTitle, et);
+            TextView emptyBody = text("Añade tu primera cuenta para empezar a proteger tus claves.", 12, MUTED, false); emptyBody.setGravity(Gravity.CENTER);
+            LinearLayout.LayoutParams eb = new LinearLayout.LayoutParams(-1, -2); eb.topMargin = dp(7); empty.addView(emptyBody, eb);
         } else {
             for (int i = 0; i < entries.length(); i++) {
                 JSONObject entry = entries.optJSONObject(i);
@@ -309,34 +343,34 @@ public class MainActivity extends Activity {
             }
         }
         Button lock = button("Bloquear bóveda", false);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, dp(44)); lp.topMargin = dp(20);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, dp(46)); lp.topMargin = dp(20);
         root.addView(lock, lp); lock.setOnClickListener(v -> lockVault());
         setContentView(page(root));
     }
 
     private View entryCard(JSONObject entry) {
-        LinearLayout card = column(16);
-        card.setBackground(roundRect(CARD, LINE, 10));
+        LinearLayout card = surface(15);
         LinearLayout heading = new LinearLayout(this); heading.setGravity(Gravity.CENTER_VERTICAL);
-        TextView siteIcon = text(entry.optString("name", "?").substring(0, 1).toUpperCase(), 16, ACCENT, true);
-        siteIcon.setGravity(Gravity.CENTER); siteIcon.setBackground(roundRect(0xFF242B20, 0, 9));
-        heading.addView(siteIcon, new LinearLayout.LayoutParams(dp(40), dp(40)));
+        String entryName = entry.optString("name", "?");
+        TextView siteIcon = text(entryName.isEmpty() ? "?" : entryName.substring(0, 1).toUpperCase(), 16, ACCENT, true);
+        siteIcon.setGravity(Gravity.CENTER); siteIcon.setBackground(roundRect(0xFF252D20, 0, 12));
+        heading.addView(siteIcon, new LinearLayout.LayoutParams(dp(42), dp(42)));
         LinearLayout meta = new LinearLayout(this); meta.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0, -2, 1); mp.leftMargin = dp(11); heading.addView(meta, mp);
-        meta.addView(text(entry.optString("name"), 14, TEXT, true));
+        meta.addView(text(entryName, 14, TEXT, true));
         String url = entry.optString("url", "");
-        TextView urlText = text(url.isEmpty() ? "Sin URL" : url, 10, MUTED, false); urlText.setMaxLines(1);
+        TextView urlText = text(url.isEmpty() ? "Sin URL" : url, 10, MUTED, false); urlText.setMaxLines(1); urlText.setPadding(0, dp(4), 0, 0);
         meta.addView(urlText);
         Button more = button("⋯", false); heading.addView(more, new LinearLayout.LayoutParams(dp(42), dp(38)));
         more.setOnClickListener(v -> showEntryMenu(entry));
         card.addView(heading);
-        View divider = new View(this); divider.setBackgroundColor(0x22FFFFFF);
-        LinearLayout.LayoutParams dpv = new LinearLayout.LayoutParams(-1, dp(1)); dpv.topMargin = dp(13); dpv.bottomMargin = dp(11); card.addView(divider, dpv);
-        TextView userLabel = text("USUARIO", 9, 0xFF778071, true); card.addView(userLabel);
+        View divider = new View(this); divider.setBackgroundColor(0x252F372A);
+        LinearLayout.LayoutParams dpv = new LinearLayout.LayoutParams(-1, dp(1)); dpv.topMargin = dp(14); dpv.bottomMargin = dp(13); card.addView(divider, dpv);
+        TextView userLabel = text("USUARIO", 9, 0xFF899381, true); userLabel.setLetterSpacing(0.1f); card.addView(userLabel);
         TextView user = text(entry.optString("username", "Sin usuario"), 12, 0xFFD4D9CF, false);
         LinearLayout.LayoutParams up = new LinearLayout.LayoutParams(-1, -2); up.topMargin = dp(3); card.addView(user, up);
         LinearLayout pwRow = new LinearLayout(this); pwRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView pwLabel = text("CONTRASEÑA", 9, 0xFF778071, true); pwRow.addView(pwLabel, new LinearLayout.LayoutParams(0, -2, 1));
+        TextView pwLabel = text("CONTRASEÑA", 9, 0xFF899381, true); pwLabel.setLetterSpacing(0.1f); pwRow.addView(pwLabel, new LinearLayout.LayoutParams(0, -2, 1));
         String id = entry.optString("id");
         TextView pw = text(revealed.containsKey(id) ? revealed.get(id) : "••••••••••••", 12, 0xFFD4D9CF, false); pw.setSingleLine(true); pw.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
         LinearLayout.LayoutParams pwp = new LinearLayout.LayoutParams(0, -2, 2); pwRow.addView(pw, pwp);
