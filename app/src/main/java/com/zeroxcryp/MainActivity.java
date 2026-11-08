@@ -52,6 +52,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class MainActivity extends Activity {
     private static final int REQUEST_EXPORT = 41;
     private static final int REQUEST_IMPORT = 42;
+    private static final int REQUEST_EXPORT_PLAIN = 43;
     private static final int BG = 0xFF0B0D0B;
     private static final int CARD = 0xFF151A14;
     private static final int LINE = 0xFF2B3327;
@@ -65,6 +66,7 @@ public class MainActivity extends Activity {
     private JSONObject account;
     private JSONObject vault;
     private String masterPassword;
+    private String pendingPlainExport;
     private final Map<String, String> revealed = new HashMap<>();
     private final Handler idleHandler = new Handler(Looper.getMainLooper());
     private final Handler revealHandler = new Handler(Looper.getMainLooper());
@@ -458,17 +460,88 @@ public class MainActivity extends Activity {
     }
 
     private void showSettings() {
-        String[] options = {"Guardar copia cifrada", "Restaurar copia cifrada", "Bloquear bóveda"};
+        String[] options = {"Guardar copia cifrada", "Restaurar copia cifrada", "Exportar JSON con claves", "Bloquear bóveda"};
         new AlertDialog.Builder(this).setTitle("ZeroXCryp").setItems(options, (d, which) -> {
-            if (which == 0) exportBackup(); else if (which == 1) openImport(); else lockVault();
+            if (which == 0) exportBackup();
+            else if (which == 1) openImport();
+            else if (which == 2) confirmPlainExport();
+            else lockVault();
         }).show();
     }
 
     private void showBackupOptions() {
-        String[] options = {"Guardar copia cifrada", "Restaurar copia cifrada"};
+        String[] options = {"Guardar copia cifrada", "Restaurar copia cifrada", "Exportar JSON con claves"};
         new AlertDialog.Builder(this).setTitle("Copia / Google Drive")
-                .setMessage("El archivo exportado está cifrado. En el selector de Android puedes elegir Google Drive como destino.")
-                .setItems(options, (d, which) -> { if (which == 0) exportBackup(); else openImport(); }).show();
+                .setMessage("La copia cifrada protege tus claves. También puedes exportar un JSON legible y elegir Google Drive en el selector de Android.")
+                .setItems(options, (d, which) -> {
+                    if (which == 0) exportBackup();
+                    else if (which == 1) openImport();
+                    else confirmPlainExport();
+                }).show();
+    }
+
+    private void confirmPlainExport() {
+        new AlertDialog.Builder(this).setTitle("Exportar claves como JSON")
+                .setMessage("El archivo incluirá tus contraseñas en texto legible, sin cifrar. Cualquier persona que pueda abrir el archivo podrá leerlas. Guárdalo solo en un lugar seguro.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Continuar", (dialog, which) -> promptExtra("Verificar y exportar", this::preparePlainExport))
+                .show();
+    }
+
+    private void preparePlainExport(String extra) {
+        final JSONObject snapshot;
+        try { snapshot = new JSONObject(vault.toString()); }
+        catch (Exception ex) { toast("No se pudo leer la bóveda."); return; }
+        AlertDialog progress = new AlertDialog.Builder(this)
+                .setTitle("Preparando exportación")
+                .setMessage("Descifrando las claves para crear el archivo JSON…")
+                .setCancelable(false).create();
+        progress.show();
+        Thread worker = new Thread(() -> {
+            try {
+                JSONObject exported = new JSONObject();
+                exported.put("format", "zeroxcryp-plain-credentials");
+                exported.put("version", 1);
+                exported.put("exportedAt", System.currentTimeMillis());
+                if (snapshot.has("profile")) exported.put("profile", new JSONObject(snapshot.getJSONObject("profile").toString()));
+                JSONArray credentials = new JSONArray();
+                JSONArray entries = snapshot.optJSONArray("entries");
+                if (entries != null) {
+                    for (int i = 0; i < entries.length(); i++) {
+                        JSONObject entry = entries.optJSONObject(i);
+                        if (entry == null) continue;
+                        JSONObject credential = new JSONObject();
+                        credential.put("name", entry.optString("name", ""));
+                        credential.put("url", entry.optString("url", ""));
+                        credential.put("username", entry.optString("username", ""));
+                        credential.put("password", decryptEntry(entry, extra));
+                        credential.put("createdAt", entry.optLong("createdAt", 0));
+                        credentials.put(credential);
+                    }
+                }
+                exported.put("entries", credentials);
+                String json = exported.toString(2);
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    pendingPlainExport = json;
+                    openPlainExport();
+                });
+            } catch (Exception ex) {
+                runOnUiThread(() -> {
+                    progress.dismiss();
+                    toast("No se pudo preparar el JSON. No se creó ningún archivo.");
+                });
+            }
+        }, "ZeroXCryp-JSON-export");
+        worker.start();
+    }
+
+    private void openPlainExport() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/json");
+        intent.putExtra(Intent.EXTRA_TITLE, "ZeroXCryp-claves-sin-cifrar.json");
+        startActivityForResult(intent, REQUEST_EXPORT_PLAIN);
     }
 
     private void exportBackup() {
@@ -488,6 +561,21 @@ public class MainActivity extends Activity {
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_EXPORT_PLAIN) {
+            if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+                pendingPlainExport = null;
+                return;
+            }
+            Uri target = data.getData();
+            String json = pendingPlainExport;
+            pendingPlainExport = null;
+            try (OutputStream output = getContentResolver().openOutputStream(target)) {
+                if (output == null || json == null) throw new Exception("No se pudo abrir el archivo.");
+                output.write(json.getBytes(StandardCharsets.UTF_8));
+                toast("JSON con claves exportado. Mantén el archivo protegido.");
+            } catch (Exception ex) { toast("No se pudo guardar el JSON con claves."); }
+            return;
+        }
         if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         if (requestCode == REQUEST_EXPORT) {
